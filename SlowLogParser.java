@@ -16,28 +16,29 @@ import java.util.regex.Pattern;
 public class SlowLogParser {
 
 	final static String parse_exception="Slowlog parse exception";
-	final static String logregex = "^\\[(?<time>\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2},\\d{3})\\]\\s?\\[(?<severity>[A-Z]+\\s*)\\]\\s?\\[(?<source>[^\\]]+)\\]\\s?\\[(?<node>[^\\]]+)\\]\\s?\\[(?<index>[^\\]]+)\\]\\s?\\[(?<shard>[^\\]]+)\\]\\s?took\\[(?<took>[^\\]]+)\\],\\s?took_millis\\[(?<took_millis>[^\\]]+)\\],\\s?types\\[(?<types>[^\\]]+)\\],\\s?stats\\[(?<stats>[^\\]]*)\\],\\s?search_type\\[(?<search_types>[^\\]]+)\\],\\s?total_shards\\[(?<total_shards>[^\\]]+)\\],\\s?source(?<source_body>[^\\]]+)\\],\\s?extra_source\\[(?<extra_source>[^\\]]*)";
-	
+	//final static String logregex = "\\[(?<time>\\d{4}-\\d{2}-\\d{2}.?\\d{2}:\\d{2}:\\d{2},\\d{3})\\]\\s?\\[(?<severity>[A-Z]+\\s*)\\]\\s?\\[(?<source>[^\\]]+)\\]\\s?\\[(?<node>[^\\]]+)\\]\\s?\\[(?<index>[^\\]]+)\\]\\s?\\[(?<shard>[^\\]]+)\\]\\s?took\\[(?<took>[^\\]]+)\\],\\s?took_millis\\[(?<tookmillis>[^\\]]+)\\],\\s?types\\[(?<types>[^\\]]+)\\],\\s?stats\\[(?<stats>[^\\]]*)\\],\\s?search_type\\[(?<searchtype>[^\\]]+)\\],\\s?total_shards\\[(?<totalshards>[^\\]]+)\\],\\s?source(?<sourcebody>[^\\]]+)\\],\\s?extra_source\\[(?<extrasource>[^\\]]*)";
+	final static String logregex = ".*\\[(?<time>\\d{4}.?\\d{2}.?\\d{2}.*\\d{2}:\\d{2}:\\d{2},\\d{3})\\].?\\[(?<severity>.*)\\].?\\[(?<source>.*)\\].?\\[(?<node>.*)\\].?\\[(?<index>.*)\\].?\\[(?<shard>.*)\\].?took\\[(?<took>.*)\\].*took_millis\\[(?<tookmillis>.*)\\].*types\\[(?<types>.*)\\].*stats\\[(?<stats>.*)\\].*search_type\\[(?<searchtype>.*)\\].*total_shards\\[(?<totalshards>.*)\\].*source\\[(?<sourcebody>.*)\\].*extra_source\\[(?<extrasource>.*)\\].*";
 	private String time, severity,source,node_name,index_name,shard,took,took_millis,types,stats,search_type,total_shards,source_body,extra_source;
 
 	public void parse(String logline) throws Exception {
 		Pattern logparse = Pattern.compile(logregex);
 		Matcher logmatch = logparse.matcher(logline);
 		if (logmatch.matches()){
-			time=logmatch.group(time);
+			time=logmatch.group("time");
 			//	time is in ISO 8601 format
-			severity=logmatch.group(severity);
-			source=logmatch.group(source);
-			node_name=logmatch.group(node_name);
-			index_name=logmatch.group(index_name);
-			shard=logmatch.group(shard);
-			took=logmatch.group(took);
-			types=logmatch.group(types);
-			stats=logmatch.group(stats);
-			search_type=logmatch.group(search_type);
-			total_shards=logmatch.group(total_shards);
-			source_body=logmatch.group(source_body);
-			extra_source=logmatch.group(extra_source);
+			severity=logmatch.group("severity");
+			source=logmatch.group("source");
+			node_name=logmatch.group("node");
+			index_name=logmatch.group("index");
+			shard=logmatch.group("shard");
+			took=logmatch.group("took");
+			took_millis=logmatch.group("tookmillis");
+			types=logmatch.group("types");
+			stats=logmatch.group("stats");
+			search_type=logmatch.group("searchtype");
+			total_shards=logmatch.group("totalshards");
+			source_body=logmatch.group("sourcebody");
+			extra_source=logmatch.group("extrasource");
 		} else throw new Exception (parse_exception);
 
 	}
@@ -113,6 +114,10 @@ public class SlowLogParser {
 
 	public String getExtra_source() {
 		return extra_source;
+	}
+	
+	public String getall(){
+		return (time+severity+source+node_name+index_name+shard+took+took_millis+types+stats+search_type+total_shards+source_body+extra_source);
 	}
 
 	//	empty all the non final string fields
